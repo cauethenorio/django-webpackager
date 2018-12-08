@@ -1,7 +1,18 @@
 # coding: utf-8
 
+import os
+import importlib
+
 from django.utils.functional import LazyObject
 from django.conf import settings
+
+
+def get_project_rootdir():
+    settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
+    settings_path = importlib.import_module(settings_module).__file__
+
+    project_root = os.path.dirname(settings_path)
+    return project_root
 
 
 class WebpackagerSettings(object):
@@ -19,8 +30,8 @@ class WebpackagerSettings(object):
             'APPS_WEBAPPS_DIR', 'webapps'
         )
 
-        self.DEFAULT_WEBCONFIG_DIRNAME = self.get_with_prefix(
-            'DEFAULT_WEBCONFIG_DIRNAME', 'webconfig'
+        self.DEFAULT_WEBCONFIG_PATH = os.path.join(
+            get_project_rootdir(), 'webconfig'
         )
 
 

@@ -39,12 +39,9 @@ class Command(BaseCommand):
                 target_dir = os.path.join(os.getcwd(), dir)
 
         else:
-            target_dir = os.path.join(
-                discover.get_project_rootdir(),
-                wp_settings.DEFAULT_WEBCONFIG_DIRNAME
-            )
+            target_dir = wp_settings.DEFAULT_WEBCONFIG_PATH
 
         try:
             webconfig.create_webconfig_dir(target_dir)
-        except exceptions.OSWebconfigError as e:
+        except exceptions.WebconfigCreationError as e:
             raise CommandError(e)

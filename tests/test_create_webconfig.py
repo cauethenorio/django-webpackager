@@ -16,11 +16,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def patch_create_webconfig_dir(test_func):
-    @functools.wraps(test_func)
     @mock.patch(
         'django_webpackager.management.commands.'
         'webpackager-create-webconfig.webconfig.create_webconfig_dir'
     )
+    @functools.wraps(test_func)
     def patch_wrapper(*args, **kwargs):
         return test_func(*args, **kwargs)
     return patch_wrapper
@@ -56,16 +56,6 @@ class CreateWebconfigTest(TestCase):
         rel_path = 'random-dir-name'
         call_command('webpackager-create-webconfig', dir=rel_path)
         patch.assert_called_once_with(os.path.join(os.getcwd(), rel_path))
-
-    @override_settings_and_update_wp_conf(
-        WEBPACKAGER_DEFAULT_WEBCONFIG_DIRNAME='thats-default-webconfig'
-    )
-    @patch_create_webconfig_dir
-    def test_no_argument_should_use_create_dir_on_project_root(self, patch):
-        call_command('webpackager-create-webconfig')
-        patch.assert_called_once_with(
-            os.path.join(BASE_DIR, 'thats-default-webconfig')
-        )
 
     def test_existing_target_should_raise(self):
         with self.assertRaisesMessage(WebconfigCreationError, 'already exists'):

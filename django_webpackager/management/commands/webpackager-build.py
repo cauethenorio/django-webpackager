@@ -9,7 +9,7 @@ from ...discover import get_project_webapps_layout
 
 
 class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+    help = 'Compile all project webapps'
 
     def handle(self, *args, **options):
         configs = get_project_webapps_layout(apps)

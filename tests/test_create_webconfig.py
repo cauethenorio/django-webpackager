@@ -4,15 +4,15 @@ import os
 from django.conf import settings
 from django.core.management.base import CommandError
 from django.core.management import call_command
-from django.test import TestCase
 
 from django_webpackager.exceptions import WebconfigCreationError
 from django_webpackager.webconfig import create_webconfig_dir
 
-from .utils import override_settings_and_update_wp_conf, mock
-
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+from .utils import (
+    BaseWebpackagerTestCase,
+    mock,
+    override_settings_and_update_wp_conf
+)
 
 
 def patch_create_webconfig_dir(test_func):
@@ -26,11 +26,11 @@ def patch_create_webconfig_dir(test_func):
     return patch_wrapper
 
 
-class CreateWebconfigTest(TestCase):
+class CreateWebconfigTest(BaseWebpackagerTestCase):
 
     @patch_create_webconfig_dir
     def test_non_existent_app_should_raise(self, patch):
-        with self.assertRaisesMessage(CommandError, 'No installed app'):
+        with self.assertRaisesRegex(CommandError, 'No installed app'):
             call_command('webpackager-create-webconfig', app='non-existent')
 
     @override_settings_and_update_wp_conf(
@@ -42,7 +42,7 @@ class CreateWebconfigTest(TestCase):
         app = 'app_with_webapps'
         call_command('webpackager-create-webconfig', app=app)
         patch.assert_called_once_with(
-            os.path.join(BASE_DIR, app, 'custom_webapps_dir')
+            self.join_basedir(app, 'custom_webapps_dir')
         )
 
     @patch_create_webconfig_dir
@@ -58,8 +58,8 @@ class CreateWebconfigTest(TestCase):
         patch.assert_called_once_with(os.path.join(os.getcwd(), rel_path))
 
     def test_existing_target_should_raise(self):
-        with self.assertRaisesMessage(WebconfigCreationError, 'already exists'):
-            create_webconfig_dir(BASE_DIR)
+        with self.assertRaisesRegex(WebconfigCreationError, 'already exists'):
+            create_webconfig_dir(self.BASE_DIR)
 
     @mock.patch('django_webpackager.webconfig.os.makedirs')
     @mock.patch('django_webpackager.webconfig.write_file_content')
